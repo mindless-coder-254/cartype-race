@@ -1,1 +1,608 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartype Race Online</title>
+<style>
+:root {
+  --navy:#102442;
+  --blue:#168cff;
+  --teal:#38d9c5;
+  --sand:#ffe3ad;
+  --pink:#ff4f86;
+  --ink:#172944;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:system-ui,Arial,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(#80e6ff 0%,#d7faff 35%,#ffe5ad 70%,#ffc96f 100%);
+  min-height:100vh;
+}
+button,input,select { font:inherit; }
+button {
+  border:0; border-radius:12px; padding:12px 15px;
+  background:var(--blue); color:white; font-weight:800;
+  cursor:pointer;
+}
+button.secondary { background:#eaf3ff;color:var(--navy); }
+button:disabled { opacity:.5; }
+header {
+  background:var(--navy); color:white; padding:16px;
+  display:flex; justify-content:space-between; align-items:center;
+  gap:10px; flex-wrap:wrap; border-bottom:4px solid var(--teal);
+}
+.logo { font-size:23px;font-weight:1000; }
+.logo span { color:var(--teal); }
+header small { color:#d8e9ff; }
+main { max-width:1000px; margin:auto; padding:14px; }
+.panel {
+  background:#ffffffed; border:2px solid white;
+  border-radius:18px; padding:16px; margin-bottom:14px;
+  box-shadow:0 8px 24px #174c7020;
+}
+h1 { font-size:clamp(24px,5vw,36px);margin:5px 0 12px; }
+h2 { font-size:20px;margin:0 0 12px; }
+p { line-height:1.55; }
+.muted { color:#64748b;font-size:13px; }
+.layout { display:grid;grid-template-columns:1fr 1.3fr;gap:14px; }
+label { display:block;font-weight:800;font-size:13px;margin:12px 0 5px; }
+input,select {
+  width:100%;padding:11px;border:1px solid #bdcfe1;
+  border-radius:10px;background:white;color:var(--ink);
+}
+.grid { display:grid;grid-template-columns:repeat(2,1fr);gap:8px; }
+.carchoice {
+  border:2px solid #d7e2ef;background:white;border-radius:12px;
+  padding:8px;text-align:center;cursor:pointer;font-weight:800;font-size:13px;
+}
+.carchoice.active { border-color:var(--blue);background:#e8f4ff; }
+.carchoice b { display:block;font-size:25px; }
+.row { display:flex;gap:8px;flex-wrap:wrap; }
+.row button { flex:1; }
+.modebtn.active { background:#ff9e37;color:#351b00; }
+.stats { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
+.stat { background:#eff7ff;padding:12px 5px;text-align:center;border-radius:12px; }
+.stat strong { display:block;font-size:22px; }
+.track {
+  border:2px solid white;border-radius:14px;overflow:hidden;
+  background:#ffe9bd;position:relative;
+}
+.lane {
+  height:60px;position:relative;border-bottom:2px dashed #d4b77f;
+  display:flex;align-items:center;
+}
+.lane:last-child { border:0; }
+.car {
+  position:absolute;left:0;z-index:2;width:62px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  border:3px solid white;border-radius:12px 18px 8px 8px;
+  box-shadow:0 3px 0 #74585b;font-size:22px;
+  transition:left .2s linear;
+}
+.car:before,.car:after {
+  content:"";position:absolute;bottom:-5px;width:12px;height:8px;
+  background:#142033;border:1px solid white;border-radius:4px;
+}
+.car:before { left:5px; } .car:after { right:5px; }
+.carname {
+  position:absolute;left:68px;top:4px;font-size:11px;
+  font-weight:800;color:#40516b;
+}
+.finish {
+  position:absolute;right:5%;height:100%;width:7px;
+  z-index:1;background:repeating-linear-gradient(0deg,#182338 0 7px,white 7px 14px);
+}
+.wordbox {
+  background:#f0f7ff;border:2px solid #cbdff5;border-radius:12px;
+  padding:14px;font-size:19px;line-height:1.7;overflow-wrap:anywhere;
+}
+.current { background:#ffe176;border-radius:3px; }
+.correct { color:#008968; }
+.wrong { color:#e12d55;text-decoration:underline; }
+.progress { height:9px;background:#e0eaf4;border-radius:10px;overflow:hidden;margin:10px 0; }
+.progress div { height:100%;width:0;background:#16b88b; }
+.notice { background:#fff5d9;padding:11px;border-radius:10px;font-size:13px; }
+.resultrow {
+  display:flex;justify-content:space-between;gap:10px;
+  padding:11px 0;border-bottom:1px solid #e1e8f1;
+}
+.hidden { display:none!important; }
+footer { text-align:center;font-size:12px;color:#526a83;padding:12px; }
+@media(max-width:650px) {
+  .layout { grid-template-columns:1fr; }
+  main { padding:9px; }
+  .panel { padding:12px; }
+  .stats { grid-template-columns:repeat(3,1fr); }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🏁 CAR<span>TYPE</span> RACE</div>
+  <small>🌴 BEACH PARTY EDITION</small>
+</header>
+
+<main>
+<section id="garage">
+  <div class="panel">
+    <h1>Type fast. Race the beach. 🏖️</h1>
+    <p>Choose your car, sharpen your typing and race towards the finish line. Four rounds decide the champion.</p>
+    <div class="notice">
+      Prototype mode: opponents are simulated. Online accounts, real multiplayer and private rooms will be connected in a later development stage.
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <h2>🚘 Your garage</h2>
+      <label for="playerName">Racer name</label>
+      <input id="playerName" maxlength="18" value="BeachRacer">
+
+      <label>Choose your car</label>
+      <div id="cars" class="grid"></div>
+
+      <label for="paint">Paint colour</label>
+      <input type="color" id="paint" value="#168cff">
+
+      <label>Difficulty</label>
+      <div class="row">
+        <button id="easy" class="modebtn active">Easy</button>
+        <button id="hard" class="modebtn secondary">Hard</button>
+      </div>
+
+      <label for="music">Music from your device (optional)</label>
+      <input type="file" id="music" accept="audio/*">
+      <div class="row" style="margin-top:8px">
+        <button id="playMusic" class="secondary">▶ Play</button>
+        <button id="stopMusic" class="secondary">■ Stop</button>
+      </div>
+      <audio id="audio" loop></audio>
+      <p class="muted">Music is played locally and is not uploaded.</p>
+    </div>
+
+    <div class="panel">
+      <h2>🏖️ Race control</h2>
+      <div class="stats">
+        <div class="stat"><strong>5</strong>Racers</div>
+        <div class="stat"><strong>4</strong>Rounds</div>
+        <div class="stat"><strong>2:00</strong>Max time</div>
+      </div>
+
+      <label for="room">Private room code (coming soon)</label>
+      <input id="room" maxlength="12" placeholder="Room codes activate with multiplayer" disabled>
+
+      <h3>Scoring</h3>
+      <p>🥇 1st: 10 points<br>
+      🥈 2nd: 8 points<br>
+      🥉 3rd: 6 points<br>
+      4th and 5th: 0 placement points<br>
+      Perfect spelling: +5 bonus points.</p>
+
+      <p class="muted">The slowest racer is eliminated at 90 seconds. An unfinished race at two minutes uses adjusted placement points.</p>
+      <button id="start" style="width:100%">🏁 Start race</button>
+      <p class="muted">Career points saved on this device: <strong id="career">0</strong></p>
+    </div>
+  </div>
+</section>
+
+<section id="race" class="hidden">
+  <div class="panel">
+    <h2>🌴 Palm Bay Circuit</h2>
+    <div class="stats">
+      <div class="stat"><strong id="timer">02:00</strong>Time</div>
+      <div class="stat"><strong id="round">1/4</strong>Round</div>
+      <div class="stat"><strong id="speed">0</strong>Speed</div>
+    </div>
+    <div class="track" id="track"><div class="finish"></div></div>
+    <div class="progress"><div id="bar"></div></div>
+    <div id="passage" class="wordbox"></div>
+    <label for="typing">Type the passage exactly as shown</label>
+    <input id="typing" type="text" inputmode="text" autocomplete="off"
+      autocapitalize="off" spellcheck="false"
+      placeholder="Type here using your keyboard..." disabled>
+    <p id="hint" class="muted">Keyboard typing only. This game does not use voice recognition or request microphone access.</p>
+    <button id="quit" class="secondary">Quit to garage</button>
+  </div>
+</section>
+
+<section id="results" class="hidden">
+  <div class="panel">
+    <h1 id="resultTitle">🏁 Round results</h1>
+    <p id="resultMessage"></p>
+    <div id="resultList"></div>
+    <div class="row" style="margin-top:14px">
+      <button id="next">Next round</button>
+      <button id="garageButton" class="secondary">Back to garage</button>
+    </div>
+  </div>
+</section>
+
+<section id="champion" class="hidden">
+  <div class="panel">
+    <h1>🏆 Grand Championship</h1>
+    <p id="championMessage"></p>
+    <div id="finalList"></div>
+    <button id="again" style="margin-top:14px">Race again</button>
+  </div>
+</section>
+</main>
+
+<footer>Cartype Race Online · Prototype · No real-money prizes</footer>
+
+<script>
+"use strict";
+
+const carOptions = [
+  ["Tesla","⚡"],["Ferrari","🐎"],["Lambo","🐂"],
+  ["Limmo","🚘"],["Porsche","🏎️"],["Toyota","🚙"],
+  ["Ford","🛻"],["F1 Racer","🏁"],["Benz","⭐"],["Dodge","💨"]
+];
+
+const easyTexts = [
+  "The sun is warm and the sea is blue. We race along the golden beach and enjoy the summer day.",
+  "Good players stay calm, type each word carefully, and keep moving toward the finish line.",
+  "A cool breeze moves the palm trees while bright waves roll softly onto the shore.",
+  "Friends meet beside the sea for music, games, sunshine, and a little friendly competition."
+];
+
+const hardTexts = [
+  "Consistency, concentration, and extraordinary precision distinguish a champion from an enthusiastic competitor.",
+  "Unexpected distractions can undermine performance; disciplined practice strengthens accuracy and confidence.",
+  "Technological innovation accelerates communication, facilitates collaboration, and continuously reshapes contemporary society.",
+  "Responsibility, resilience, and intellectual curiosity are indispensable qualities for meaningful achievement."
+];
+
+const aiNames = [
+  "Maya Drift","Kai Thunder","Zuri Blaze","Leo Wave",
+  "Nova Sprint","Ari Sunset","Rex Turbo","Skye Rocket",
+  "Nia Velocity","Cruz Ocean","Talia Storm","Finn Nitro"
+];
+
+const $ = id => document.getElementById(id);
+const storageKey = "cartypeRaceLocalV1";
+
+let chosenCar = 0;
+let difficulty = "easy";
+let race = null;
+let timerId = null;
+let musicUrl = null;
+
+function profile() {
+  try {
+    return JSON.parse(localStorage.getItem(storageKey)) ||
+      {career:0, races:0};
+  } catch {
+    return {career:0, races:0};
+  }
+}
+
+function saveProfile(data) {
+  localStorage.setItem(storageKey, JSON.stringify(data));
+  $("career").textContent = data.career;
+}
+
+$("career").textContent = profile().career;
+
+function show(id) {
+  ["garage","race","results","champion"].forEach(section =>
+    $(section).classList.toggle("hidden", section !== id)
+  );
+}
+
+function renderCars() {
+  $("cars").innerHTML = carOptions.map((car,index) =>
+    `<div class="carchoice ${index===chosenCar?"active":""}" data-index="${index}">
+      <b>${car[1]}</b>${car[0]}
+    </div>`
+  ).join("");
+
+  $("cars").querySelectorAll("[data-index]").forEach(el => {
+    el.onclick = () => {
+      chosenCar = Number(el.dataset.index);
+      renderCars();
+    };
+  });
+}
+
+renderCars();
+
+$("easy").onclick = () => setMode("easy");
+$("hard").onclick = () => setMode("hard");
+
+function setMode(mode) {
+  difficulty = mode;
+  $("easy").classList.toggle("active", mode==="easy");
+  $("hard").classList.toggle("active", mode==="hard");
+  $("easy").classList.toggle("secondary", mode!=="easy");
+  $("hard").classList.toggle("secondary", mode!=="hard");
+}
+
+$("music").onchange = event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (musicUrl) URL.revokeObjectURL(musicUrl);
+  musicUrl = URL.createObjectURL(file);
+  $("audio").src = musicUrl;
+};
+
+$("playMusic").onclick = () => {
+  if (!$("audio").src) {
+    alert("Choose a music file first.");
+    return;
+  }
+  $("audio").play().catch(() => {});
+};
+
+$("stopMusic").onclick = () => $("audio").pause();
+
+function randomName(used) {
+  const available = aiNames.filter(name => !used.includes(name));
+  return available[Math.floor(Math.random()*available.length)] || "AI Racer";
+}
+
+function startRace() {
+  const name = $("playerName").value.trim() || "BeachRacer";
+  const used = [name];
+  const racers = [{
+    name, car:carOptions[chosenCar][1], color:$("paint").value,
+    player:true, progress:0, points:0, speed:0,
+    typed:"", perfect:true, finished:false, eliminated:false
+  }];
+
+  for (let i=0;i<4;i++) {
+    const aiName = randomName(used);
+    used.push(aiName);
+    racers.push({
+      name:aiName,
+      car:carOptions[Math.floor(Math.random()*carOptions.length)][1],
+      color:["#ff4f86","#22b8a5","#ffad32","#8b70ff"][i],
+      player:false, progress:0, points:0, speed:0,
+      perfect:true, finished:false, eliminated:false,
+      skill:Math.random()
+    });
+  }
+
+  race = {racers, round:1, time:120, ended:false, passage:""};
+  show("race");
+  startRound();
+}
+
+function startRound() {
+  clearInterval(timerId);
+  race.time = 120;
+  race.ended = false;
+
+  const texts = difficulty==="easy" ? easyTexts : hardTexts;
+  race.passage = texts[Math.floor(Math.random()*texts.length)];
+
+  race.racers.forEach(r => {
+    r.progress=0; r.speed=0; r.typed="";
+    r.perfect=true; r.finished=false; r.eliminated=false;
+  });
+
+  $("round").textContent = race.round+"/4";
+  $("typing").value = "";
+  $("typing").disabled = false;
+  $("hint").textContent = "Type the passage exactly as shown.";
+  $("typing").focus();
+  renderTrack();
+  renderPassage();
+  updateStats();
+  timerId = setInterval(tick,1000);
+}
+
+function renderTrack() {
+  $("track").innerHTML = '<div class="finish"></div>';
+  race.racers.forEach((r,i) => {
+    const lane = document.createElement("div");
+    lane.className = "lane";
+    const car = document.createElement("div");
+    car.className = "car";
+    car.id = "car"+i;
+    car.textContent = r.car;
+    car.style.background = r.color;
+
+    const label = document.createElement("span");
+    label.className = "carname";
+    label.textContent = r.name + (r.player ? " (YOU)" : "");
+
+    lane.append(car,label);
+    $("track").append(lane);
+  });
+}
+
+function renderPassage() {
+  const typed = race.racers[0].typed;
+  const target = race.passage;
+  let html = "";
+
+  for (let i=0;i<target.length;i++) {
+    const char = target[i];
+    const shown = char===" " ? "&nbsp;" : escapeHTML(char);
+    let cls = "";
+    if (i < typed.length) cls = typed[i]===char ? "correct" : "wrong";
+    else if (i===typed.length) cls = "current";
+    html += `<span class="${cls}">${shown}</span>`;
+  }
+
+  $("passage").innerHTML = html;
+  $("bar").style.width = Math.min(100,typed.length/target.length*100)+"%";
+}
+
+function escapeHTML(text) {
+  return text.replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[char]);
+}
+
+function updateCars() {
+  race.racers.forEach((r,i) => {
+    const car = $("car"+i);
+    if (car) car.style.left = `calc(${Math.min(88,r.progress*88)}% - 1px)`;
+  });
+}
+
+function updateStats() {
+  const player = race.racers[0];
+  $("timer").textContent =
+    String(Math.floor(race.time/60)).padStart(2,"0")+":"+
+    String(race.time%60).padStart(2,"0");
+  $("speed").textContent = Math.round(player.speed*100);
+}
+
+$("typing").addEventListener("input", () => {
+  if (!race || race.ended) return;
+  const player = race.racers[0];
+  if (player.finished || player.eliminated) return;
+
+  player.typed = $("typing").value;
+
+  if ([...player.typed].some((ch,i) => ch!==race.passage[i])) {
+    player.perfect = false;
+    player.speed = Math.max(0,player.speed-0.05);
+    $("hint").textContent = "Typo! Speed reduced. Correct it and keep going.";
+  } else {
+    player.speed = Math.min(1,player.speed+0.01);
+    $("hint").textContent = "Correct typing! Keep racing.";
+  }
+
+  let correct = 0;
+  while (correct<player.typed.length &&
+    player.typed[correct]===race.passage[correct]) correct++;
+
+  player.progress = correct/race.passage.length;
+
+  if (player.typed===race.passage) {
+    player.finished = true;
+    player.progress=1;
+    player.finishAt=120-race.time;
+    $("typing").disabled=true;
+    $("hint").textContent="Passage complete!";
+  }
+
+  renderPassage();
+  updateCars();
+  updateStats();
+
+  if (race.racers.every(r => r.finished || r.eliminated)) endRound(false);
+});
+
+function tick() {
+  if (race.ended) return;
+  race.time--;
+
+  race.racers.forEach(r => {
+    if (r.player || r.finished || r.eliminated) return;
+
+    const base = difficulty==="easy" ? 0.0055 : 0.0070;
+    r.speed = Math.min(0.012,Math.max(0,r.speed+base*(0.5+r.skill)));
+    r.progress += r.speed;
+
+    if (r.progress>=1) {
+      r.progress=1;
+      r.finished=true;
+      r.finishAt=120-race.time;
+    }
+  });
+
+  if (race.time===30) {
+    const active = race.racers.filter(r=>!r.finished&&!r.eliminated);
+    active.sort((a,b)=>a.progress-b.progress);
+    if (active.length) {
+      active[0].eliminated=true;
+      if (active[0].player) {
+        $("typing").disabled=true;
+        $("hint").textContent="You have been eliminated. Round placement points are unavailable.";
+      }
+    }
+  }
+
+  updateCars();
+  updateStats();
+
+  if (race.time<=0) {
+    endRound(true);
+  } else if (race.racers.every(r=>r.finished||r.eliminated)) {
+    endRound(false);
+  }
+}
+
+function endRound(timeout) {
+  if (race.ended) return;
+  race.ended=true;
+  clearInterval(timerId);
+  $("typing").disabled=true;
+
+  const sorted = [...race.racers].sort((a,b) => {
+    if (a.finished && b.finished) return a.finishAt-b.finishAt;
+    if (a.finished) return -1;
+    if (b.finished) return 1;
+    return b.progress-a.progress;
+  });
+
+  sorted.forEach((r,i) => {
+    let placement = [10,8,6,0,0][i];
+    if (timeout) placement=Math.max(0,placement-1);
+    if (r.eliminated) placement=0;
+
+    const bonus = r.perfect && r.finished ? 5 : 0;
+    r.roundEarned=placement+bonus;
+    r.points+=r.roundEarned;
+  });
+
+  $("resultTitle").textContent = "🏁 Round "+race.round+" results";
+  $("resultMessage").textContent = timeout ?
+    "Time ended. Placement points have been reduced by one." :
+    "Round complete! Check your spelling bonus and points.";
+
+  $("resultList").innerHTML = sorted.map((r,i) =>
+    `<div class="resultrow"><span>${i+1}. ${escapeHTML(r.name)}${r.player?" (YOU)":""}</span>
+    <strong>+${r.roundEarned} · Total ${r.points}</strong></div>`
+  ).join("");
+
+  $("next").textContent = race.round===4 ? "View champion 🏆" : "Next round →";
+  show("results");
+}
+
+$("next").onclick = () => {
+  if (race.round<4) {
+    race.round++;
+    show("race");
+    startRound();
+    return;
+  }
+
+  const sorted=[...race.racers].sort((a,b)=>b.points-a.points);
+  $("championMessage").textContent =
+    sorted[0].name+" wins this demo championship with "+sorted[0].points+" points!";
+
+  $("finalList").innerHTML=sorted.map((r,i)=>
+    `<div class="resultrow"><span>${["🥇","🥈","🥉","🏖️","🏖️"][i]} ${i+1}. ${escapeHTML(r.name)}</span>
+    <strong>${r.points} points</strong></div>`
+  ).join("");
+
+  const p=profile();
+  p.career+=race.racers[0].points;
+  p.races++;
+  saveProfile(p);
+  show("champion");
+};
+
+$("start").onclick = startRace;
+$("quit").onclick = () => {
+  clearInterval(timerId);
+  show("garage");
+};
+$("garageButton").onclick = () => show("garage");
+$("again").onclick = () => show("garage");
+
+renderCars();
+</script>
+</body>
+</html>
+
