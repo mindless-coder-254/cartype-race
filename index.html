@@ -235,8 +235,35 @@ footer {text-align:center;padding:25px;color:var(--muted);font-size:12px}
 <!-- Supabase library is loaded for the next integration stage.
      Add your Project URL and publishable key in the marked section below. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 "use strict";
+    <div class="panel hero">
+      <div class="eyebrow">CHAMPIONSHIP COMPLETE</div>
+      <h1>🏆 The finish line.</h1>
+      <p id="championMessage"></p>
+      <div id="finalList"></div>
+      <button id="again" class="green" style="width:100%;margin-top:18px">RACE AGAIN</button>
+    </div>
+  </section>
+</main>
+const typingBox = document.getElementById("typing");
+
+typingBox.addEventListener("paste", function(event) {
+  event.preventDefault();
+});
+
+typingBox.addEventListener("drop", function(event) {
+  event.preventDefault();
+});
+<footer>Cartype Race Online · Local demo · Real-money features disabled</footer>
+
+<!-- Supabase library is loaded for the next integration stage.
+     Add your Project URL and publishable key in the marked section below. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+
 
 /* NEXT STEP: Add your own Supabase Project URL and publishable key.
    Do not use a secret/service-role key in browser code.
