@@ -263,7 +263,34 @@ typingBox.addEventListener("drop", function(event) {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
+// Block paste and drag-and-drop in the typing box.
+const typingBox = $("typing");
 
+["paste", "drop", "dragover", "dragenter", "contextmenu"].forEach(type => {
+  typingBox.addEventListener(type, event => {
+    event.preventDefault();
+    event.stopPropagation();
+    $("hint").textContent = "Pasting is disabled. Please type the passage!";
+  }, true);
+});
+
+typingBox.addEventListener("beforeinput", event => {
+  if (event.inputType === "insertFromPaste" ||
+      event.inputType === "insertFromDrop") {
+    event.preventDefault();
+  }
+}, true);
+
+typingBox.addEventListener("keydown", event => {
+  if (
+    ((event.ctrlKey || event.metaKey) &&
+      ["v", "x"].includes(event.key.toLowerCase())) ||
+    (event.shiftKey && event.key === "Insert")
+  ) {
+    event.preventDefault();
+    $("hint").textContent = "Pasting is disabled. Please type the passage!";
+  }
+}, true);
 
 /* NEXT STEP: Add your own Supabase Project URL and publishable key.
    Do not use a secret/service-role key in browser code.
@@ -301,12 +328,12 @@ const carOptions = [
 ];
 
 const easyTexts = [
-  "Fast cars race on the road.",
-  "Type each word and win the race.",
-  "Stay calm and keep moving forward.",
-  "Blue skies shine above the track.",
-  "Good drivers focus on the finish line.",
-  "Practice every day to become faster."
+  "Fast cars race on the road are all flying high.",
+  "Type each word and win the race, but fail to finish and and get little points.",
+  "Stay calm and keep moving forward, the finish line is just ahead.",
+  "Blue skies shine above the track, deep seas are filled with fish.",
+  "Good drivers focus on the finish line, but get all spelling correct for 5 points.",
+  "Practice every day to become faster, its never easy but its good."
 ];
 
 const hardTexts = [
@@ -318,8 +345,8 @@ const hardTexts = [
 ];
 
 const aiNames = [
-  "Nova Sprint","Kai Thunder","Zuri Blaze","Rex Turbo",
-  "Maya Drift","Leo Nitro","Skye Rocket","Finn Velocity"
+  "Nova Sprint","Kai Thunder","Zuri Blaze","Rex Turbo","Twin Turbo","Blaze De Racer"
+  "Maya Drift","Leo Nitro","Skye Rocket","Finn Velocity","Blitz Curler","Big Bang"
 ];
 
 const storageKey = "cartypeRaceLocalV2";
@@ -543,14 +570,16 @@ function endRound(timeout) {
   });
   sorted.forEach((r,i)=>{
     let points=[10,8,6,0,0,0,0,0][i]||0;
-    if(timeout)points=Math.max(0,points-1);
+   if(timeout && !r.finished && !r.eliminated) {
+  points = Math.max(0, points - 1);
+}
     if(r.eliminated)points=0;
     const bonus=r.perfect&&r.finished?5:0;
     r.roundEarned=points+bonus;r.points+=r.roundEarned;
   });
   $("resultTitle").textContent=`Round ${race.round} results`;
   $("resultMessage").textContent=timeout?
-    "Time ended. Placement awards were reduced by one point.":
+    "Time ended. Only players who failed to finish received a one-point deduction.":
     "Round complete! Review your placement and spelling bonus.";
   $("resultList").innerHTML=sorted.map((r,i)=>`
     <div class="resultrow">
